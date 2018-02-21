@@ -11,48 +11,45 @@ from os import listdir
 
 def filter( arch ):
 
+
 	with open("/home/anonymous/Desktop/coleccionESuja2018/" + arch) as ls:
 
 		soup = BeautifulSoup(ls, "html.parser")
 
-
-
 	
-
 	#Get Title
-	print soup.title.string
+	text = soup.title.text
 
 
 	#Get Date
 	date = soup.find("div", attrs = {"class" : "field-item odd"})
-	print date.find("span").string
+	text = text + " " + date.find("span").text
 
 	#Get Body
 	body = soup.find_all("p")
-	print body[1].string
+	for bd in body:
+		text = text + " " + bd.text
 
+	
 	#Get Tags
 	topics = soup.find_all("a", attrs = {"rel" : "tag"})
-
 	for i in topics:
-		print i.string
+		text = text + " " + i.text
 
 	#Get Rute
-	rute = soup.find("div", attrs = {"class" : "terms terms-inline"})
-
-	if rute:
-		print rute.find("a").string
-	else:
-		print "home"
+	rute = soup.find("div", attrs = {"class" : "breadcrumb"})
+	for rt in rute.find_all("a"):
+		 text = text + " " + rt.text 
 		
 
 	#Get Author
 	author = soup.find("div", attrs = {"class" : "submitted"})
-	user = author.string.split()
-
-	print user[2]
-
+	user = author.text.split()
+	text = text + " " + user[2]
+	
 	ls.close()
+
+	return text
 	
 
 
@@ -64,7 +61,7 @@ for arch in listdir("/home/anonymous/Desktop/coleccionESuja2018/"):
 
 	print "!!!!!!!!!!!!!!!!!!!!!!!!" + arch + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
-	filter( arch )
+	print filter( arch )
 
 
 print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
