@@ -1,8 +1,15 @@
 
 from bs4 import BeautifulSoup
 
+import os
+
 from os import listdir
 
+import re
+
+import unicodedata
+
+from time import time
 
 
 
@@ -53,15 +60,53 @@ def filter( arch ):
 	
 
 
+def clean( filtered ):
+
+	cleaned = filtered.lower()
+	
+	pattern = re.compile(r'\W+')
+
+	return pattern.split(elimina_tildes(cleaned))
 
 
 
+
+def elimina_tildes(s):
+   return ''.join((c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn'))
+ 
+
+tini = time()
+
+tf = 0
+
+os.mkdir("/home/anonymous/Desktop/coleccionESuja2018res")
 
 for arch in listdir("/home/anonymous/Desktop/coleccionESuja2018/"):
 
-	print "!!!!!!!!!!!!!!!!!!!!!!!!" + arch + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-
-	print filter( arch )
 
 
-print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+	newarch = "/home/anonymous/Desktop/coleccionESuja2018res/" + arch[0:8] + ".txt"
+	
+	fich = open(newarch, 'w')
+
+	forini = time()
+
+	for archw in clean( filter( arch )):
+		fich.write(archw + '\n')
+
+	forend = time()
+	
+	tf += (forend - forini)
+
+	fich.close()
+
+tfin = time()
+
+te = tfin - tini
+
+
+
+print "Tiempo de ejecucion: " + str(te)
+
+print "Tiempo de for: " + str(tf)
+
