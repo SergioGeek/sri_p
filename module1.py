@@ -12,6 +12,8 @@ from time import time
 
 import configparser
 
+from nltk.corpus import stopwords
+
 
 
 	
@@ -67,14 +69,28 @@ def clean( filtered ): # Esta función limpia el string dado
 	
 	pattern = re.compile(r'\W+') # Separa por síbolos no alfanuméricos
 	
-	fich = ""
+	fich_fin = pattern.split(elimina_tildes(cleaned)) # Elimina tildes y tokeniza
+
+	cleaned = []
+
+	for archw in fich_fin : 
+		cleaned.append(archw)
+
+	return cleaned
 	
-	for archw in pattern.split(elimina_tildes(cleaned)): # Elimina tildes y une
-		fich += (archw + '\n')
 
-	return fich
+def stopper( cleaned ):
 
+	stopper_fich = []
 
+	stopWords = set(stopwords.words('spanish'))
+
+	for c in cleaned:
+		if c not in stopWords:
+			stopper_fich.append(c)
+
+	return stopper_fich
+	
 
 def elimina_tildes(s):
    return ''.join((c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn'))
@@ -94,20 +110,50 @@ confg_file = configparser.ConfigParser()
 confg_file.read("config.cfg")
 
 
-# Creación de directorio destino
-if "coleccionESuja2018res" not in listdir(confg_file["PATHS"]["WritingPath"]): # Si ya está, el directorio no se crea
-	os.mkdir(confg_file["PATHS"]["WritingPath"] + "coleccionESuja2018res")
+# Creación de directorio destino (cleaned)
+if "coleccionESuja2018cleaned" not in listdir(confg_file["PATHS"]["WritingPath"]): # Si ya está, el directorio no se crea
+	os.mkdir(confg_file["PATHS"]["WritingPath"] + "coleccionESuja2018cleaned")
+
+# Creación de directorio destino (stopper)
+if "coleccionESuja2018stopper" not in listdir(confg_file["PATHS"]["WritingPath"]): # Si ya está, el directorio no se crea
+	os.mkdir(confg_file["PATHS"]["WritingPath"] + "coleccionESuja2018stopper")
+
+
 
 
 for arch in listdir(confg_file["PATHS"]["ReadingPath"]):
 
-	newarch = confg_file["PATHS"]["WritingPath"] + "coleccionESuja2018res/" + arch[0:8] + ".txt"
+	arch_cleaned = confg_file["PATHS"]["WritingPath"] + "coleccionESuja2018cleaned/" + arch[0:8] + ".txt"
 
-	fich = open(newarch, 'w')
+	arch_stopper = confg_file["PATHS"]["WritingPath"] + "coleccionESuja2018stopper/" + arch[0:8] + ".txt"
 
-	fich.write(clean(filter(arch)))
+	cleaned = clean(filter(arch))
 
-	fich.close()
+	fc = ""
+
+	for c in cleaned:
+		fc += (c + '\n')
+
+	fich_cleaned = open(arch_cleaned, 'w')
+
+	fich_cleaned.write(fc)
+		
+	fich_cleaned.close()
+
+	sl = ""
+
+	stopper_list = stopper(cleaned)
+
+	for slw in stopper_list:
+		sl += (slw + '\n')
+
+	fich_stopper = open(arch_stopper, 'w')	
+
+	fich_stopper.write(sl)
+
+	fich_stopper.close()
+
+	
 
 tfin = time()
 
